@@ -1,29 +1,36 @@
 const passwordInput = document.querySelector('#password-input');
 const confirmPasswordInput = document.querySelector('#confirm-password-input');
-const confirmButton = document.querySelector('#confirm-button');
 
-function waitForPasswordsToMatch(originalInput, confirmationInput) {
+function areValuesMatchingAndNotEmpty(firstValue, secondValue) {
+  return firstValue === secondValue && firstValue && secondValue;
+}
+
+function waitForPasswordsToMatch(firstInput, secondInput) {
   return new Promise(function (resolve, reject) {
-    if (
-      !originalInput.value ||
-      !confirmationInput.value ||
-      originalInput.value !== confirmationInput.value
-    ) {
-      reject();
+    if (!firstInput || !secondInput) {
+      return reject();
     }
-    resolve(originalInput);
-    resolve(confirmationInput);
+    let firstValue = '';
+    let secondValue = '';
+    firstInput.addEventListener('input', function (event) {
+      firstValue = event.target.value;
+      if (areValuesMatchingAndNotEmpty(firstValue, secondValue)) {
+        resolve();
+      }
+    });
+    secondInput.addEventListener('input', function (event) {
+      secondValue = event.target.value;
+      if (areValuesMatchingAndNotEmpty(firstValue, secondValue)) {
+        resolve();
+      }
+    });
   });
 }
 
-if (confirmButton) {
-  confirmButton.addEventListener('click', function () {
-    waitForPasswordsToMatch(passwordInput, confirmPasswordInput)
-      .then(() => {
-        console.log('passwords match');
-      })
-      .catch(() => {
-        console.log("passwords don't match or are empty");
-      });
+waitForPasswordsToMatch(passwordInput, confirmPasswordInput)
+  .then(function () {
+    console.log('Passwords match');
+  })
+  .catch(function () {
+    console.log('One of the inputs does not exist');
   });
-}
